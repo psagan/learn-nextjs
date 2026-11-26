@@ -85,7 +85,12 @@ export async function createInvoice(prevState: State, formData: FormData) {
 }
 
 
-export async function updateInvoice(id: string, prevState: State, formData: FormData) {
+export async function updateInvoice(
+  id: string,
+  prevState: State,
+  formData: FormData,
+): Promise<State> {
+    const values = readValues(formData);
     const validatedFields = UpdateInvoice.safeParse({
       customerId: formData.get('customerId'),
       amount: formData.get('amount'),
@@ -95,7 +100,8 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
     if (!validatedFields.success) {
         return {
             errors: validatedFields.error.flatten().fieldErrors,
-            message: 'Missing Fields. Failed to Update Invoice.',            
+            message: 'Missing Fields. Failed to Update Invoice.',
+            values,
         };
     }
 
@@ -110,7 +116,8 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
           `;
       } catch (error) {
         return {
-            message: 'Db error'
+            message: 'Db error',
+            values,
         };
       }
    

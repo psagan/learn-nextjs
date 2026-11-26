@@ -29,11 +29,24 @@ export type State = {
       status?: string[];
     };
     message?: string | null;
+    values?: {
+      customerId?: string;
+      amount?: string;
+      status?: string;
+    };
   };
 
+function readValues(formData: FormData): State['values'] {
+  return {
+    customerId: String(formData.get('customerId') ?? ''),
+    amount: String(formData.get('amount') ?? ''),
+    status: String(formData.get('status') ?? ''),
+  };
+}
 
 // actions below
 export async function createInvoice(prevState: State, formData: FormData) {
+    const values = readValues(formData);
     const validatedFields = CreateInvoice.safeParse({
         customerId: formData.get('customerId'),
         amount: formData.get('amount'),
@@ -45,6 +58,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
         return {
             errors: validatedFields.error.flatten().fieldErrors,
             message: 'Missing Fields. Failed to Create Invoice.',
+            values,
         };
     }
 
@@ -62,6 +76,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
         console.error(error);
         return {
             message: 'Database Error: Failed to Create Invoice.',
+            values,
         };
     }
 
